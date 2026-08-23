@@ -1,0 +1,19 @@
+# FlyRank Internship Retrospective
+
+When I started the FlyRank internship, my main goal was to improve my practical understanding of machine learning and become more comfortable working with real data rather than only studying ML concepts theoretically. I wanted to learn how a machine learning problem is defined, how data is prepared, how a baseline is established, and how final results can be communicated clearly.
+
+During the internship, my understanding of machine learning became more practical. One of the biggest changes was learning to think about the complete workflow rather than focusing only on the model. Working with the FlyRank warehouse data required understanding the unit of analysis, defining a data contract, identifying useful fields, processing large datasets, and making sure the resulting features represented the problem being solved.
+
+My work on the search-intelligence tasks gave me experience with this process. I worked with content-performance information and framed declining content as a binary classification problem using `is_declining_label`. I also used ROC-AUC as the main evaluation metric. Building the baseline action score helped me understand the difference between producing a prediction and turning data into an actionable recommendation.
+
+The baseline workflow used signals such as impression changes and content staleness and mapped them into actions including `REFRESH_NOW`, `REVIEW`, and `MONITOR`. This connected machine learning and data analysis to a decision-making workflow instead of treating model output as the final objective.
+
+Another major change was my understanding of working with large datasets. The internship required me to work with warehouse data and multiple Parquet shards, giving me practical experience with data loading, debugging authentication and dataset-access issues, and processing large amounts of information. These experiences were different from working with small classroom datasets because configuration, data access, memory, and data structure can become just as important as the ML algorithm itself.
+
+The three most transferable things I learned were data problem framing, reproducible technical workflows, and communicating technical work. First, I learned that a good ML project starts with clearly defining the problem, unit of analysis, target, features, and evaluation metric. Second, I learned that reproducibility matters. A project is much more valuable when another person can understand the setup, run the workflow, inspect the results, and understand the assumptions. Third, I learned that technical work needs to be communicated through documentation, examples, evaluation results, and clear explanations rather than only through code.
+
+The internship also changed how I think about AI engineering. I became more interested in the part between raw data and useful systems: data pipelines, evaluation, decision logic, documentation, and deployment-oriented thinking. This connects directly to my CloudGuard AI-PQC capstone, where I am applying similar ideas to cloud-security monitoring and post-quantum secure communication.
+
+If I continued developing this work, I would improve the V2 modeling and evaluation process, test the approach across longer time periods, investigate additional sources of decline, and build a more complete interface for exploring predictions and recommendations. I would also strengthen automated testing and monitoring so that changes in data quality or model behavior could be detected.
+
+Most importantly, the internship changed my view of what it means to build an ML project. I now see it as a complete engineering process: understand the problem, define the data, build a baseline, evaluate it honestly, document the limitations, and communicate the result so another person can reproduce and understand the work.
