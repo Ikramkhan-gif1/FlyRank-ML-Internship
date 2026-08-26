@@ -34,6 +34,19 @@ The ML work focuses on search-intelligence data and the problem of identifying c
 
 The work used the FlyRank internship warehouse, including `fact_content_daily_performance`. The processed development workflow reached approximately **78.8 million examples**.
 
+### Final capstone results
+
+| Measure | Result |
+|---|---:|
+| Client-content items | 151,981 |
+| Declining items | 54,472 |
+| Declining rate | 35.84% |
+| Rule-based baseline ROC-AUC | 0.5184 |
+| Random Forest (V2) ROC-AUC | **0.6408** |
+| Absolute ROC-AUC improvement | **+0.1224** |
+
+The Random Forest improved ROC-AUC from **0.5184** for the rule-based baseline to **0.6408**, an absolute improvement of **0.1224**. This indicates that the ML approach learned substantially more useful ranking information than the simple rule-based baseline, while still leaving room for improvement.
+
 ### Key signals
 
 `search_volume`, `impressions_90d`, `days_with_impressions`, `impressions_last_30d`, `impressions_prev_30d`, `days_since_last_update`, `ctr`, `avg_position`, `impression_tier`, and `position_tier`.
@@ -67,13 +80,19 @@ Transparent baseline       ML model
 
 A transparent baseline was created before relying on a more complex ML approach. It combined content staleness and impression-decline signals into an action score and mapped results to `REFRESH_NOW`, `REVIEW`, and `MONITOR`.
 
+The baseline ROC-AUC was **0.5184**. The Random Forest V2 model reached **0.6408**, giving an absolute improvement of **0.1224 ROC-AUC**.
+
 ## Evaluation
 
-**Primary metric:** ROC-AUC  
-**V2 ROC-AUC:** *To be filled from the verified final evaluation output.*  
-**Baseline ROC-AUC:** *To be filled from the verified baseline evaluation output.*
+**Primary metric:** ROC-AUC
 
-These values are intentionally not guessed. The final submission should use the exact numbers produced by the submitted evaluation notebook.
+| Model | ROC-AUC |
+|---|---:|
+| Rule-based baseline | 0.5184 |
+| Random Forest (V2) | **0.6408** |
+| Improvement | **+0.1224** |
+
+The final dataset summary was **151,981 client-content items**, including **54,472 declining items**, giving a declining rate of **35.84%**.
 
 ## Reproducibility
 
@@ -117,3 +136,8 @@ work/notebooks/
 ## Status
 
 The written final package and public links are included. The **3–5 minute live demo video is intentionally not included**, per my submission choice. The remaining portal actions are the hours log, showcase submission, final review/sign-off, and any required verification/badge step.
+
+---
+
+**Portfolio:** https://ikramkhan-gif1.github.io/ikram-portfolio/  
+**Paper:** https://ikramkhan-gif1.github.io/FlyRank-ML-Internship/paper/
