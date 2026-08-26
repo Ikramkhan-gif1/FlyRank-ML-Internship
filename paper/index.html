@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Predicting Search Impression Decline</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.7;
+        margin: 0;
+        background: #f5f7fa;
+        color: #202124;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: auto;
+        padding: 40px 25px;
+    }
+
+    header {
+        background: #111827;
+        color: white;
+        padding: 55px 25px;
+    }
+
+    header .container {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    h1 {
+        font-size: 42px;
+        line-height: 1.2;
+        margin-bottom: 15px;
+    }
+
+    h2 {
+        margin-top: 55px;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 8px;
+    }
+
+    h3 {
+        margin-top: 30px;
+    }
+
+    .subtitle {
+        font-size: 20px;
+        color: #d1d5db;
+    }
+
+    .card {
+        background: white;
+        padding: 25px;
+        margin: 25px 0;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 25px 0;
+    }
+
+    .metric {
+        background: white;
+        padding: 22px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .metric strong {
+        display: block;
+        font-size: 30px;
+        margin-bottom: 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        background: white;
+    }
+
+    th, td {
+        padding: 13px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    th {
+        background: #f0f2f5;
+    }
+
+    .note {
+        background: #eef4ff;
+        border-left: 5px solid #3b82f6;
+        padding: 18px;
+        margin: 25px 0;
+    }
+
+    .warning {
+        background: #fff7ed;
+        border-left: 5px solid #f97316;
+        padding: 18px;
+        margin: 25px 0;
+    }
+
+    code {
+        background: #f0f2f5;
+        padding: 2px 5px;
+        border-radius: 4px;
+    }
+
+    footer {
+        background: #111827;
+        color: white;
+        margin-top: 60px;
+        padding: 35px 25px;
+    }
+
+    a {
+        color: #2563eb;
+    }
+
+    ul, ol {
+        padding-left: 25px;
+    }
+
+    @media (max-width: 600px) {
+        h1 {
+            font-size: 32px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="container">
+
+<h1>Predicting Search Impression Decline with Machine Learning</h1>
+
+<p class="subtitle">
+A decision-support approach for prioritizing content review using anonymized search-performance data
+</p>
+
+<p>
+Machine Learning Capstone · FlyRank ML Internship
+</p>
+
+</div>
+</header>
+
+<main class="container">
+
+<!-- ABSTRACT -->
+
+<h2>Abstract</h2>
+
+<div class="card">
+
+<p>
+This study asks whether historical search-performance signals can help prioritize client-content items that subsequently experience a meaningful decline in Google Search impressions.
+</p>
+
+<p>
+Using anonymized FlyRank warehouse data from March 2026, the analysis aggregates daily records into client-content observations and uses March 1–15 as the feature period and March 16–31 as the outcome period.
+</p>
+
+<p>
+A content item is labeled as declining when its average daily impressions fall by at least 20% between the two periods.
+</p>
+
+<p>
+A Random Forest classifier is compared against a simple rule-based baseline using ROC-AUC on a held-out test set.
+</p>
+
+<p>
+The Random Forest achieved a ROC-AUC of <strong>0.6408</strong>, compared with <strong>0.5184</strong> for the baseline, an observed improvement of <strong>0.1224</strong>.
+</p>
+
+</div>
+
+
+<!-- INTRODUCTION -->
+
+<h2>1. Introduction / Problem Statement</h2>
+
+<p>
+Search-performance teams often need to decide which content items deserve attention first. When many content items are available for review, treating every item equally can make prioritization difficult.
+</p>
+
+<p>
+This project investigates whether historical search-performance signals can be used to rank content according to the likelihood of a subsequent impression decline.
+</p>
+
+<div class="note">
+
+<strong>Decision supported:</strong>
+
+The resulting system is intended to help prioritize content-review work. Higher-risk items can receive earlier human investigation, while lower-risk items can remain under monitoring.
+
+</div>
+
+<p>
+This project does not attempt to prove how Google's ranking algorithm works. It also does not estimate the causal effect of refreshing or changing content.
+</p>
+
+
+<!-- DATA -->
+
+<h2>2. Data</h2>
+
+<h3>Dataset</h3>
+
+<p>
+The analysis uses the FlyRank ML Internship warehouse release, specifically the
+<code>fact_content_daily_performance</code> table for March 2026.
+</p>
+
+<p>
+The March 2026 source contains <strong>9,841,378 daily records</strong> across 31 columns.
+</p>
+
+<p>
+After aggregation and filtering, the analysis contains
+<strong>151,981 client-content observations</strong>.
+</p>
+
+<div class="metric-grid">
+
+<div class="metric">
+<strong>151,981</strong>
+Client-content items
+</div>
+
+<div class="metric">
+<strong>9.84M</strong>
+Daily records
+</div>
+
+<div class="metric">
+<strong>35.84%</strong>
+Declining rate
+</div>
+
+<div class="metric">
+<strong>20%</strong>
+Decline threshold
+</div>
+
+</div>
+
+<h3>Time Windows</h3>
+
+<table>
+
+<tr>
+<th>Period</th>
+<th>Dates</th>
+<th>Purpose</th>
+</tr>
+
+<tr>
+<td>Feature period</td>
+<td>March 1–15, 2026</td>
+<td>Predictive signals</td>
+</tr>
+
+<tr>
+<td>Outcome period</td>
+<td>March 16–31, 2026</td>
+<td>Outcome label</td>
+</tr>
+
+</table>
+
+<h3>Public-Safe Data Handling</h3>
+
+<p>
+Client and content identifiers are anonymized. The public analysis does not expose client names, domains, URLs, private search queries, credentials, or raw production exports.
+</p>
+
+<p>
+The analysis uses search-performance fields including impressions, clicks, and average position, together with available engagement signals.
+</p>
+
+
+<!-- METHODOLOGY -->
+
+<h2>3. Methodology</h2>
+
+<h3>Unit of Analysis</h3>
+
+<p>
+Each observation represents one unique combination of an anonymized client and content item.
+</p>
+
+<h3>Predictive Features</h3>
+
+<p>
+Features are calculated exclusively from the March 1–15 feature period.
+</p>
+
+<ul>
+<li>Average daily impressions</li>
+<li>Daily clicks</li>
+<li>Click-through rate</li>
+<li>Average search position</li>
+<li>Daily sessions</li>
+<li>Engagement rate</li>
+<li>Engagement time per session</li>
+</ul>
+
+<h3>Outcome Definition</h3>
+
+<p>
+The target is a binary operational label.
+</p>
+
+<p>
+A content item receives a label of <code>1</code> when its average daily impressions decline by at least 20% between the feature and outcome periods.
+</p>
+
+<p>
+The two periods contain different numbers of days, so impressions are normalized into average daily impressions before calculating the percentage change.
+</p>
+
+<h3>Baseline</h3>
+
+<p>
+The rule-based baseline combines two first-period signals:
+</p>
+
+<ul>
+<li>Impression-level risk</li>
+<li>Search-position risk</li>
+</ul>
+
+<p>
+The combined score assigns content to MONITOR, REVIEW, or REFRESH_NOW priority groups.
+</p>
+
+<h3>Machine-Learning Model</h3>
+
+<p>
+A Random Forest classifier is trained using only first-period predictive features.
+</p>
+
+<h3>Validation</h3>
+
+<p>
+The dataset is divided into an 80% training set and a 20% held-out test set using stratified sampling and a fixed random seed of 42.
+</p>
+
+<p>
+ROC-AUC is the primary metric because the goal is to rank content items according to predicted decline risk.
+</p>
+
+<p>
+Accuracy, precision, recall, and F1-score are used as secondary evaluation metrics.
+</p>
+
+<h3>Leakage Checks</h3>
+
+<p>
+Variables describing the second period are excluded from the predictive feature set. The notebook also checks predictive features for missing values and examines client overlap between the training and test sets.
+</p>
+
+
+<!-- RESULTS -->
+
+<h2>4. Results</h2>
+
+<p>
+The Random Forest and rule-based baseline were evaluated using the same held-out test set.
+</p>
+
+<table>
+
+<tr>
+<th>Method</th>
+<th>ROC-AUC</th>
+</tr>
+
+<tr>
+<td>Rule-based baseline</td>
+<td><strong>0.5184</strong></td>
+</tr>
+
+<tr>
+<td>Random Forest</td>
+<td><strong>0.6408</strong></td>
+</tr>
+
+</table>
+
+<div class="metric-grid">
+
+<div class="metric">
+<strong>0.5184</strong>
+Baseline ROC-AUC
+</div>
+
+<div class="metric">
+<strong>0.6408</strong>
+Random Forest ROC-AUC
+</div>
+
+<div class="metric">
+<strong>+0.1224</strong>
+Observed improvement
+</div>
+
+</div>
+
+<div class="note">
+
+<strong>Result:</strong>
+
+The Random Forest outperformed the rule-based baseline under this evaluation design, improving ROC-AUC by 0.1224.
+
+</div>
+
+<p>
+This result indicates stronger observed ranking performance on the held-out test set. It should not be interpreted as evidence of a causal effect on Google rankings or traffic.
+</p>
+
+
+<!-- FEATURE SIGNALS -->
+
+<h2>Feature Signals</h2>
+
+<p>
+The Random Forest feature-importance analysis was used to examine which first-period signals contributed most to the model's predictions.
+</p>
+
+<p>
+Feature importance is interpreted as a model diagnostic rather than proof that any individual signal causes search-performance changes.
+</p>
+
+
+<!-- RECOMMENDATIONS -->
+
+<h2>5. Ranked Recommendations</h2>
+
+<p>
+The model output is converted into a content-review prioritization system.
+</p>
+
+<h3>REFRESH_NOW</h3>
+
+<p>
+Items with the highest predicted probability of future impression decline. These should receive the earliest human review.
+</p>
+
+<h3>REVIEW</h3>
+
+<p>
+Items with moderate predicted decline probability. These should be investigated before deciding on an action.
+</p>
+
+<h3>MONITOR</h3>
+
+<p>
+Items with lower predicted decline probability. These can remain under observation while higher-priority items are investigated.
+</p>
+
+<h3>Reason Codes</h3>
+
+<ul>
+<li><strong>WEAK_SEARCH_POSITION</strong> — relatively weak first-period search position.</li>
+<li><strong>LOW_CTR</strong> — relatively low first-period click-through rate.</li>
+<li><strong>LOW_SEARCH_VISIBILITY</strong> — relatively low first-period impression volume.</li>
+<li><strong>GENERAL_DECLINE_RISK</strong> — elevated predicted risk without one of the specific reason codes dominating.</li>
+</ul>
+
+<div class="warning">
+
+<strong>Important:</strong>
+
+These recommendations are decision-support outputs. A REFRESH_NOW recommendation does not mean that refreshing a page will cause Google rankings or impressions to increase.
+
+</div>
+
+
+<!-- LIMITATIONS -->
+
+<h2>6. Limitations & Honest Framing</h2>
+
+<ul>
+
+<li>
+The analysis measures observed associations between historical signals and subsequent impression changes.
+</li>
+
+<li>
+The constructed outcome is an operational definition based on a 20% decline in average daily impressions.
+</li>
+
+<li>
+The analysis uses March 2026 data and therefore represents a limited observation window.
+</li>
+
+<li>
+Performance may differ across other time periods, content types, websites, or search environments.
+</li>
+
+<li>
+The validation uses a random stratified train/test split. Client overlap was examined rather than assuming that the observations were completely independent.
+</li>
+
+<li>
+The results do not establish causal relationships between content changes and search performance.
+</li>
+
+<li>
+The model should therefore be used for prioritization and human review rather than as an automatic decision-maker.
+</li>
+
+</ul>
+
+
+<!-- REPRODUCIBILITY -->
+
+<h2>7. Reproducibility</h2>
+
+<p>
+The complete analysis was developed using Python, DuckDB, pandas, NumPy, and scikit-learn.
+</p>
+
+<p>
+The notebook contains the workflow for:
+</p>
+
+<ol>
+<li>Loading the FlyRank warehouse data.</li>
+<li>Aggregating daily records into client-content observations.</li>
+<li>Engineering predictive features.</li>
+<li>Defining the decline outcome.</li>
+<li>Building the rule-based baseline.</li>
+<li>Training the Random Forest model.</li>
+<li>Evaluating the model.</li>
+<li>Generating ranked recommendations.</li>
+</ol>
+
+<p>
+The source repository is available here:
+</p>
+
+<p>
+<a href="https://github.com/Ikramkhan-gif1/FlyRank-ML-Internship">
+FlyRank ML Internship Repository
+</a>
+</p>
+
+<p>
+The capstone notebook is located at:
+</p>
+
+<p>
+<code>work/notebooks/capstone.ipynb</code>
+</p>
+
+
+<!-- ARTIFACTS -->
+
+<h2>8. Artifacts</h2>
+
+<p>
+The capstone produces the following research artifacts:
+</p>
+
+<ol>
+<li>Model-versus-baseline ROC-AUC comparison.</li>
+<li>Random Forest feature-importance analysis.</li>
+<li>Recommendation distribution.</li>
+<li>Classification report and confusion matrix.</li>
+<li>Public-safe recommendation summary.</li>
+</ol>
+
+
+<!-- DEMO -->
+
+<h2>5-Minute Demo Outline</h2>
+
+<ol>
+
+<li>
+<strong>Problem:</strong>
+Explain whether historical search-performance signals can help prioritize future impression decline.
+</li>
+
+<li>
+<strong>Data:</strong>
+Explain the anonymized March 2026 FlyRank warehouse and the client-content unit of analysis.
+</li>
+
+<li>
+<strong>Method:</strong>
+Explain the feature period, outcome period, 20% decline label, baseline, and Random Forest.
+</li>
+
+<li>
+<strong>Results:</strong>
+Show the baseline ROC-AUC of 0.5184 versus Random Forest ROC-AUC of 0.6408.
+</li>
+
+<li>
+<strong>Recommendations:</strong>
+Explain REFRESH_NOW, REVIEW, and MONITOR.
+</li>
+
+<li>
+<strong>Limitations:</strong>
+Explain that the system provides directional decision support rather than causal evidence.
+</li>
+
+</ol>
+
+
+<!-- SOCIAL POST -->
+
+<h2>Social-Post Cut</h2>
+
+<div class="card">
+
+<p>
+I built a machine-learning content opportunity scoring system using anonymized FlyRank search-performance data.
+</p>
+
+<p>
+The project compares a rule-based baseline with a Random Forest model to prioritize content showing signs of future search-impression decline.
+</p>
+
+<p>
+The Random Forest achieved a ROC-AUC of 0.6408 compared with 0.5184 for the baseline, producing an observed improvement of 0.1224.
+</p>
+
+<p>
+The workflow combines data aggregation, feature engineering, leakage checks, model evaluation, and ranked content-review recommendations while avoiding claims about Google's algorithm or causal SEO impact.
+</p>
+
+</div>
+
+
+<!-- EMPLOYER -->
+
+<h2>Employer-Facing Summary</h2>
+
+<div class="card">
+
+<p>
+I developed an end-to-end machine-learning workflow using a large anonymized search-performance dataset, including data aggregation, feature engineering, leakage checks, baseline construction, model training, and evaluation.
+</p>
+
+<p>
+I compared a Random Forest classifier against a rule-based baseline using ROC-AUC and converted model predictions into ranked content-review recommendations.
+</p>
+
+<p>
+The project demonstrates practical experience in Python, DuckDB, pandas, scikit-learn, model validation, reproducible analysis, and communicating ML results as decision-support insights.
+</p>
+
+</div>
+
+
+<!-- ACKNOWLEDGMENTS -->
+
+<h2>9. Acknowledgments & Data Credit</h2>
+
+<p>
+This project was completed as part of the FlyRank ML Internship.
+</p>
+
+<p>
+The analysis was built on the FlyRank ML Internship dataset and follows the public-safety requirements of the capstone.
+</p>
+
+<p>
+Data source:
+<a href="https://flyrank.ai" target="_blank">
+FlyRank AI
+</a>
+</p>
+
+</div>
+
+<footer>
+
+<div class="container">
+
+<p>
+<strong>Google Search Ranking & Discoverability Capstone</strong>
+</p>
+
+<p>
+Machine Learning · FlyRank ML Internship
+</p>
+
+<p>
+This research is intended for educational and decision-support purposes.
+</p>
+
+</div>
+
+</footer>
+
+</body>
+</html>
