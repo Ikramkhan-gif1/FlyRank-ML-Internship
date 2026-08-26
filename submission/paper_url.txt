@@ -1,1 +1,2 @@
 PASTE-YOUR-DEPLOYED-PAPER-URL-HERE
+https://ikramkhan-gif1.github.io/FlyRank-ML-Internship/paper/
