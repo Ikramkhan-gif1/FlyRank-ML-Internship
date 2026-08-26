@@ -28,6 +28,8 @@ I chose a notebook-centered workflow because it made each stage inspectable whil
 
 The project used the FlyRank internship warehouse, including the `fact_content_daily_performance` dataset/configuration. The development work focused on March 2026 data and reached approximately 78.8 million processed examples.
 
+The final evaluation covered **151,981 client-content items**. Of these, **54,472 were declining**, giving a **35.84% declining rate**.
+
 Important signals included search volume, impressions, recent versus previous impressions, days with impressions, content freshness, CTR, and average search position.
 
 The full warehouse is access-controlled. No private credentials should be committed to this repository.
@@ -79,12 +81,15 @@ The purpose was to create a simple benchmark that could be understood without a 
 
 The primary metric is **ROC-AUC**.
 
-The exact final values should come directly from the verified final evaluation notebook:
+| Model | ROC-AUC |
+|---|---:|
+| Rule-based baseline | 0.5184 |
+| Random Forest (V2) | **0.6408** |
+| Absolute improvement | **+0.1224** |
 
-- **Baseline ROC-AUC:** `[VERIFY FROM FINAL NOTEBOOK]`
-- **V2 ROC-AUC:** `[VERIFY FROM FINAL NOTEBOOK]`
+The final evaluation dataset contained **151,981 client-content items**, including **54,472 declining items** (**35.84%**).
 
-I am leaving these as verification fields rather than inventing numbers. The final repository should contain the exact measured values before portal submission.
+The Random Forest improved ROC-AUC from **0.5184** to **0.6408**, an absolute improvement of **0.1224**. This indicates that the ML approach learned useful ranking information beyond the simple rule-based baseline, while still leaving room for improvement.
 
 ## Hardest thing that broke
 
